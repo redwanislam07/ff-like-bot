@@ -109,7 +109,7 @@ def process_server_and_like(call):
     success_count = 0
     
     for token in FAKE_TOKENS:
-        if token.startswith("TOKEN_"):
+                if token.startswith("TOKEN_"):
             continue
         api_url = f"https://freefiremobile.com" 
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
