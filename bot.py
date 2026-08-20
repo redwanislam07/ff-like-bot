@@ -7,18 +7,16 @@ from telebot import types
 BOT_TOKEN = "8706590237:AAF8U6QtB4kR_YYyriEkAjasH8ji7tfOyIw"
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# ২. ফ্রি ফায়ার ফেক আইডির আসল অ্যাক্সেস টোকেন লিস্ট (এখানে আপনার আসল টোকেন বসাবেন)
+# ২. ফ্রি ফায়ার ফেক আইডির আসল অ্যাক্সেস টোকেন লিস্ট
 FAKE_TOKENS = [
     "TOKEN_1",
     "TOKEN_2"
 ]
 
-# ব্যবহারকারীর সাময়িক ডেটা রাখার জন্য ডিকশনারি
 user_data_store = {}
 
 def get_main_keyboard():
     markup = types.InlineKeyboardMarkup(row_width=2)
-    # আপনার অনুরোধ অনুযায়ী ২টি বাটন বাদ দিয়ে বাকি ৬টি বাটন রাখা হয়েছে
     btn_buy_daily = types.InlineKeyboardButton("🔥 BUY DAILY LIKE", callback_data="buy_daily")
     btn_add_money = types.InlineKeyboardButton("💰 ADD MONEY", callback_data="add_money")
     btn_my_info = types.InlineKeyboardButton("👤 MY INFO", callback_data="my_info")
@@ -58,7 +56,7 @@ def handle_callback(call):
     elif call.data == "add_money":
         bot.send_message(call.message.chat.id, "💰 **টাকা অ্যাড করার জন্য এডমিনের সাথে যোগাযোগ করুন:**\n\n👉 @redwan_islam007", parse_mode="Markdown")
     elif call.data == "my_info":
-        bot.send_message(call.message.chat.id, f"👤 **আপনার প্রোফাইল তথ্য:**\n\nID: `{call.from_user.id}`\nBalance: ৳100.0", parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, f"👤 **আপনার প্রোфাইল তথ্য:**\n\nID: `{call.from_user.id}`\nBalance: ৳100.0", parse_mode="Markdown")
     elif call.data == "support":
         bot.send_message(call.message.chat.id, "🆘 **যেকোনো সমস্যায় সহায়তার জন্য আমাদের সাপোর্ট অ্যাকাউন্টে মেসেজ দিন:**\n\n👉 @redwan_islam007", parse_mode="Markdown")
     elif call.data == "main_menu":
@@ -86,7 +84,7 @@ def process_uid(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("srv_"))
 def process_server_and_like(call):
-    server_name = call.data.split("_")[1]
+    server_name = call.data.split("_")
     chat_id = call.message.chat.id
     
     if chat_id not in user_data_store:
@@ -124,8 +122,6 @@ def process_server_and_like(call):
             pass
         time.sleep(0.4)
         
-    after_likes = before_likes + success_count
-    
     result_text = (
         f"✔️ **LIKES ADDED SUCCESSFULLY!**\n"
         f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n"
