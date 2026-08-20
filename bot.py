@@ -3,27 +3,53 @@ import requests
 import time
 from telebot import types
 
-# ১. এখানে BotFather থেকে পাওয়া আপনার বটের API Token-টি বসান
+# ১. আপনার বটের টোকেন বসান
 BOT_TOKEN = "8706590237:AAF8U6QtB4kR_YYyriEkAjasH8ji7tfOyIw"
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# ২. আপনার ফেক আইডির অ্যাক্সেস টোকেন লিস্ট (এখানে ১০০ বা ২০০ পর্যন্ত বসাতে পারবেন)
+# ২. ফ্রি ফায়ার ফেক আইডির আসল অ্যাক্সেস টোকেন লিস্ট (এখানে আসল টোকেন বসাবেন)
 FAKE_TOKENS = [
     "TOKEN_1",
-    "TOKEN_2",
-    "TOKEN_3"
+    "TOKEN_2"
 ]
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
-    welcome_text = "🔥 **WELCOME TO FREE FIRE LIKE BOT!** 🔥\n\n👇 লাইক নিতে নিচের বাটনে চাপ দিন।"
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    markup.add(types.KeyboardButton("🚀 GET 10 LIKES INSTANT"))
-    bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown", reply_markup=markup)
+    user_name = message.from_user.first_name if message.from_user.first_name else "User"
+    username_tag = f"@{message.from_user.username}" if message.from_user.username else "None"
+    user_id = message.from_user.id
+    
+    # স্ক্রিনশটের মতো সাজানো মেসেজের ফরম্যাট
+    panel_text = (
+        f"🛒 **WELCOME TO FIRE LIKE BOT!**\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n"
+        f"👤 **Name:** {user_name}\n"
+        f"🏷️ **Username:** {username_tag}\n"
+        f"✔️ **User ID:** `{user_id}`\n"
+        f"💰 **Balance:** ৳100.0\n\n"
+        f"🌱 **স্বাগতম! বট ব্যবহার করার জন্য ধন্যবাদ!**\n\n"
+        f"🤖 FREE FIRE DAILY LIKE BOT\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n"
+        f"🔷 Get 100+ Likes Daily\n"
+        f"⚡ Auto Like Service\n"
+        f"⚡ Instant Delivery\n"
+        f"🛡️ 100% Trusted\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    )
+    
+    # ইনলাইন বাটন (Inline Buttons) তৈরি
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn_like = types.InlineKeyboardButton("🚀 GET LIKES INSTANT", callback_data="get_likes")
+    markup.add(btn_like)
+    
+    # আপনি চাইলে এখানে আপনার বটের পিকচার লিংক বসাতে পারেন (ঐচ্ছিক)
+    # bot.send_photo(message.chat.id, "IMAGE_URL_HERE", caption=panel_text, parse_mode="Markdown", reply_markup=markup)
+    
+    bot.send_message(message.chat.id, panel_text, parse_mode="Markdown", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text == "🚀 GET 10 LIKES INSTANT")
-def ask_uid(message):
-    msg = bot.send_message(message.chat.id, "📝 **Enter your Game UID:**\n*(আপনার ফ্রি ফায়ার আইডি নম্বরটি লিখুন)*", parse_mode="Markdown")
+@bot.callback_query_handler(func=lambda call: call.data == "get_likes")
+def callback_query(call):
+    msg = bot.send_message(call.message.chat.id, "📝 **Enter your Game UID:**\n*(আপনার ফ্রি ফায়ার আইডি নম্বরটি লিখুন)*", parse_mode="Markdown")
     bot.register_next_step_handler(msg, send_bulk_likes)
 
 def send_bulk_likes(message):
@@ -32,12 +58,12 @@ def send_bulk_likes(message):
         bot.send_message(message.chat.id, "❌ ভুল আইডি! শুধুমাত্র সংখ্যায় আপনার UID দিন।")
         return
 
-    status_msg = bot.send_message(message.chat.id, "⏳ আপনার আইডি প্রসেস করা হচ্ছে...")
+    status_msg = bot.send_message(message.chat.id, "⏳ আপনার আইডি গ্যারেনা সার্ভারে প্রসেস করা হচ্ছে...")
     success_count = 0
     
     for token in FAKE_TOKENS:
-        if success_count >= 10: # প্রতি ক্লিকে ১০টি করে লাইক পাঠানোর লিমিট
-            break
+        if token.startswith("TOKEN_"): # ডামি টোকেন থাকলে স্কিপ করবে
+            continue
         api_url = f"https://freefiremobile.com" 
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
         payload = {"target_uid": int(uid), "region": "BD"}
@@ -52,4 +78,3 @@ def send_bulk_likes(message):
     bot.edit_message_text(chat_id=message.chat.id, message_id=status_msg.message_id, text=f"✅ **SUCCESS!**\n\n🎯 আপনার আইডি `{uid}`-তে সফলভাবে **{success_count}টি লাইক** পাঠানো হয়েছে!", parse_mode="Markdown")
 
 bot.infinity_polling()
-
